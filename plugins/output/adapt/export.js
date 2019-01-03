@@ -42,7 +42,7 @@ function ensureExportDir(exportDirEnsured) {
 }
 
 function generateLatestBuild(results, courseBuilt) {
-  self.publish(COURSE_ID, Constants.Modes.export, null, null, courseBuilt);
+  self.publish(COURSE_ID, Constants.Modes.Export, null, null, courseBuilt);
 }
 
 /**
@@ -164,7 +164,6 @@ function zipExport(next, error, results) {
 
 // remove the EXPORT_DIR, if there is one
 function cleanUpExport(next, exportError) {
-  debugger;
   fs.remove(EXPORT_DIR, function(removeError) {
     const error = exportError || removeError;
     if(error) logger.log('error', error);

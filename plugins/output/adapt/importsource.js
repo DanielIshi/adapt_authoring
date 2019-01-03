@@ -321,6 +321,8 @@ function ImportSource(req, done) {
         return cb(error);
       }
       async.each(results, function(plugin, cb2) {
+        const properties = plugin.properties;
+        const locations = properties && properties.pluginLocations;
         if(!metadata[`${type}Map`]) {
           metadata[`${type}Map`] = {};
         }
@@ -330,11 +332,11 @@ function ImportSource(req, done) {
           name: plugin.name,
           _id: plugin._id
         };
-        if(plugin.properties.pluginLocations) {
+        if(locations) {
           if(!pluginLocations[type]) {
             pluginLocations[type] = {};
           }
-          pluginLocations[type][plugin.targetAttribute] = plugin.properties.pluginLocations;
+          pluginLocations[type][plugin.targetAttribute] = locations;
         }
         cb2();
       }, cb);
@@ -483,11 +485,14 @@ function ImportSource(req, done) {
       * Content-specific attributes
       */
       if(type === 'course') {
+        data = _.extend(data, { tags: formTags });
         try {
           var contents = await fs.readFile(path.join(COURSE_ROOT_FOLDER, Constants.Folders.Source, Constants.Folders.Theme, plugindata.theme[0]._theme, 'less', Constants.Filenames.CustomStyle), 'utf8');
-          data = _.extend(data, { tags: formTags, customStyle: contents.toString() });
+          data = _.extend(data, { customStyle: contents.toString() });
         } catch(e) {
-          return reject(e);
+          if (e.code !== 'ENOENT') {
+            return reject(e);
+          }
         }
       }
       else if(type === 'config') {
